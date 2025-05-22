@@ -65,3 +65,6 @@ build/
 .project
 .classpath
 .settings**/.cxx/
+
+# Android NDK build files
+.cxx/
