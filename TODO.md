@@ -35,3 +35,24 @@
 
 - [ ] **Revisar Código Kotlin para Features do JDK 17 (Opcional):**
    - Com o JDK 17, novas features da linguagem Java e Kotlin podem estar disponíveis. Uma revisão do código pode identificar oportunidades para modernizar ou simplificar o código. 
+
+## Análise Geral do Código (Pós-Refatoração Inicial)
+
+- [x] **Corrigir Bug de Recursão em `renamePlaylist`:**
+  - **Local:** `packages/on_audio_query/lib/src/on_audio_query.dart`
+  - **Problema:** O método `renamePlaylist` chama a si mesmo recursivamente.
+  - **Correção:** Alterar `return renamePlaylist(playlistId, newName);` para `return platform.renamePlaylist(playlistId, newName);`.
+  - **Status:** ✅ Corrigido em commit 92681c8
+
+- [ ] **Revisar Tratamento de Erros Nativo->Dart:**
+  - Investigar se todos os cenários de erro potenciais no código nativo (Kotlin, Swift) são capturados e comunicados de volta ao Dart de forma consistente, utilizando códigos de erro específicos quando apropriado para permitir um tratamento mais granular por parte dos usuários do plugin.
+
+- [ ] **Expandir Cobertura de Testes:**
+  - Avaliar e expandir os testes unitários e de integração (incluindo testes de plataforma) para cobrir todos os métodos públicos, cenários de uso, casos de borda e diferentes configurações de permissão.
+
+- [ ] **Monitorar Tamanho/Complexidade de `OnAudioQuery` e `MethodController` (Kotlin):**
+  - **`packages/on_audio_query/lib/src/on_audio_query.dart`:** Se o número de métodos continuar a crescer significativamente, considerar refatorar agrupando funcionalidades relacionadas em classes menores (ex: `PlaylistManager`).
+  - **`MethodController.kt` (Android):** Se esta classe se tornar muito grande, aplicar o mesmo princípio de dividir em classes menores por funcionalidade (ex: `SongQueryHandler`, `AlbumQueryHandler`).
+
+- [ ] **Manter Documentação de Suporte de Plataforma Atualizada:**
+  - Continuar garantindo que a tabela "Platforms" na documentação de cada método reflita precisamente o suporte atual, especialmente para funcionalidades com suporte limitado. 
