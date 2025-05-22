@@ -1,20 +1,20 @@
-buildscript {
-    ext.kotlin_version = '1.5.31'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
 allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+}
+
+// Adicionando workaround para namespace em subprojetos (plugins)
+subprojects {
+    afterEvaluate { project ->
+        if (project.path == ":on_audio_query_android" && project.hasProperty('android')) {
+            if (!project.android.hasProperty('namespace') || project.android.namespace == null) {
+                println "INFO: Forcing namespace for ${project.name} to com.lucasjosino.on_audio_query"
+                project.android.namespace = "com.lucasjosino.on_audio_query"
+            }
+        }
+        // Você poderia generalizar para outros plugins se necessário, mas vamos focar no nosso.
     }
 }
 
@@ -26,6 +26,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
 }
