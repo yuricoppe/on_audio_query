@@ -31,16 +31,22 @@ class QueryHelper {
 
     //This method will separate [String] from [Int]
     fun loadSongItem(itemProperty: String, cursor: Cursor): Any? {
+        val columnIndex = cursor.getColumnIndex(itemProperty)
+        if (columnIndex == -1 && itemProperty != "is_alarm" && itemProperty != "is_audiobook" && itemProperty != "is_music" && itemProperty != "is_notification" && itemProperty != "is_podcast" && itemProperty != "is_ringtone") {
+            // For boolean types, they are handled differently below, allow columnIndex to be -1 if string is null.
+            // For other types, if column doesn't exist, return a sensible default or null.
+            return if (itemProperty == "_id" || itemProperty == "album_id" || itemProperty == "artist_id" || itemProperty == "_size" || itemProperty == "bookmark" || itemProperty == "date_added" || itemProperty == "date_modified" || itemProperty == "duration" || itemProperty == "track") 0 else null
+        }
+
         return when (itemProperty) {
-            // Int
+            // Int or Long
             "_id",
             "album_id",
             "artist_id" -> {
-                // The [id] from Android >= 30/R is a [Long] instead of [Int].
                 if (Build.VERSION.SDK_INT >= 30) {
-                    cursor.getLong(cursor.getColumnIndex(itemProperty))
+                    if (columnIndex != -1) cursor.getLong(columnIndex) else 0L
                 } else {
-                    cursor.getInt(cursor.getColumnIndex(itemProperty))
+                    if (columnIndex != -1) cursor.getInt(columnIndex) else 0
                 }
             }
             "_size",
@@ -48,7 +54,7 @@ class QueryHelper {
             "date_added",
             "date_modified",
             "duration",
-            "track" -> cursor.getInt(cursor.getColumnIndex(itemProperty))
+            "track" -> if (columnIndex != -1) cursor.getInt(columnIndex) else 0
             // Boolean
             "is_alarm",
             "is_audiobook",
@@ -56,71 +62,87 @@ class QueryHelper {
             "is_notification",
             "is_podcast",
             "is_ringtone" -> {
-                val value = cursor.getString(cursor.getColumnIndex(itemProperty))
-                if (value == "0") return false
-                return true
+                // getString can return null if column doesn't exist or value is null
+                val value = if (columnIndex != -1) cursor.getString(columnIndex) else null
+                value == "1" // More robust boolean check, assuming "1" is true, anything else (null, "0") is false.
             }
             // String
-            else -> cursor.getString(cursor.getColumnIndex(itemProperty))
+            else -> if (columnIndex != -1) cursor.getString(columnIndex) else null
         }
     }
 
     //This method will separate [String] from [Int]
     fun loadAlbumItem(itemProperty: String, cursor: Cursor): Any? {
+        val columnIndex = cursor.getColumnIndex(itemProperty)
+        if (columnIndex == -1) {
+            return if (itemProperty == "_id" || itemProperty == "artist_id" || itemProperty == "numsongs") 0 else null
+        }
+
         return when (itemProperty) {
             "_id",
             "artist_id" -> {
-                // The [album] id from Android >= 30/R is a [Long] instead of [Int].
                 if (Build.VERSION.SDK_INT >= 30) {
-                    cursor.getLong(cursor.getColumnIndex(itemProperty))
+                    cursor.getLong(columnIndex)
                 } else {
-                    cursor.getInt(cursor.getColumnIndex(itemProperty))
+                    cursor.getInt(columnIndex)
                 }
             }
-            "numsongs" -> cursor.getInt(cursor.getColumnIndex(itemProperty))
-            else -> cursor.getString(cursor.getColumnIndex(itemProperty))
+            "numsongs" -> cursor.getInt(columnIndex)
+            else -> cursor.getString(columnIndex)
         }
     }
 
     //This method will separate [String] from [Int]
     fun loadPlaylistItem(itemProperty: String, cursor: Cursor): Any? {
+        val columnIndex = cursor.getColumnIndex(itemProperty)
+        if (columnIndex == -1) {
+            return if (itemProperty == "_id" || itemProperty == "date_added" || itemProperty == "date_modified") 0L else null
+        }
+
         return when (itemProperty) {
             "_id",
             "date_added",
-            "date_modified" -> cursor.getLong(cursor.getColumnIndex(itemProperty))
-            else -> cursor.getString(cursor.getColumnIndex(itemProperty))
+            "date_modified" -> cursor.getLong(columnIndex)
+            else -> cursor.getString(columnIndex)
         }
     }
 
     //This method will separate [String] from [Int]
     fun loadArtistItem(itemProperty: String, cursor: Cursor): Any? {
+        val columnIndex = cursor.getColumnIndex(itemProperty)
+        if (columnIndex == -1) {
+            return if (itemProperty == "_id" || itemProperty == "number_of_albums" || itemProperty == "number_of_tracks") 0 else null
+        }
+
         return when (itemProperty) {
             "_id" -> {
-                // The [artist] id from Android >= 30/R is a [Long] instead of [Int].
                 if (Build.VERSION.SDK_INT >= 30) {
-                    cursor.getLong(cursor.getColumnIndex(itemProperty))
+                    cursor.getLong(columnIndex)
                 } else {
-                    cursor.getInt(cursor.getColumnIndex(itemProperty))
+                    cursor.getInt(columnIndex)
                 }
             }
             "number_of_albums",
-            "number_of_tracks" -> cursor.getInt(cursor.getColumnIndex(itemProperty))
-            else -> cursor.getString(cursor.getColumnIndex(itemProperty))
+            "number_of_tracks" -> cursor.getInt(columnIndex)
+            else -> cursor.getString(columnIndex)
         }
     }
 
     //This method will separate [String] from [Int]
     fun loadGenreItem(itemProperty: String, cursor: Cursor): Any? {
+        val columnIndex = cursor.getColumnIndex(itemProperty)
+        if (columnIndex == -1) {
+            return if (itemProperty == "_id") 0 else null
+        }
         return when (itemProperty) {
             "_id" -> {
-                // The [genre] id from Android >= 30/R is a [Long] instead of [Int].
                 if (Build.VERSION.SDK_INT >= 30) {
-                    cursor.getLong(cursor.getColumnIndex(itemProperty))
+                    cursor.getLong(columnIndex)
                 } else {
-                    cursor.getInt(cursor.getColumnIndex(itemProperty))
+                    cursor.getInt(columnIndex)
                 }
             }
-            else -> cursor.getString(cursor.getColumnIndex(itemProperty))
+            else -> cursor.getString(columnIndex)
         }
     }
 
